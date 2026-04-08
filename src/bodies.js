@@ -16,6 +16,9 @@ export class CelestialBody {
 		this.orbitGroup.add(this.mesh);
 		if (parent) parent.orbitGroup.add(this.orbitGroup);
 		this.setInitialPosition();
+		if (this.orbitRadius > 0) {
+			this.addOrbitRing();
+		}
 	}
 
 	createMesh(emissive) {
@@ -28,6 +31,21 @@ export class CelestialBody {
 			roughness: 0.7,
 		});
 		return new THREE.Mesh(geometry, material);
+	}
+
+	addOrbitRing() {
+		const segments = 128;
+		const geometry = new THREE.RingGeometry(this.orbitRadius - 0.2, this.orbitRadius + 0.2, segments);
+		const material = new THREE.MeshBasicMaterial({
+			color: 0x00e5ff,
+			side: THREE.DoubleSide,
+			transparent: true,
+			opacity: 0.25,
+			depthWrite: false,
+		});
+		const ring = new THREE.Mesh(geometry, material);
+		ring.rotation.x = Math.PI / 2;
+		this.orbitGroup.add(ring);
 	}
 
 	setInitialPosition() {
@@ -76,5 +94,54 @@ export function createSolarSystem(scene) {
 		bodies.sun.orbitGroup.add(bodies[def.name.toLowerCase()].orbitGroup);
 	});
 
+	// Earth's Moon
+	bodies.moon = new CelestialBody({
+		name: 'Moon',
+		radius: 2,
+		color: 0xbbbbbb,
+		orbitRadius: 14,
+		orbitSpeed: 0.08,
+		parent: bodies.earth,
+	});
+
+	// Saturn's Rings
+	addSaturnRings(bodies.saturn);
+
+	// Asteroid Belt
+	addAsteroidBelt(bodies.sun.orbitGroup);
+
 	return bodies;
+}
+
+function addSaturnRings(saturnBody) {
+	if (!saturnBody) return;
+	const innerRadius = saturnBody.radius * 1.3;
+	const outerRadius = saturnBody.radius * 2.2;
+	const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 128);
+	const material = new THREE.MeshBasicMaterial({
+		color: 0xffe0b0,
+		side: THREE.DoubleSide,
+		transparent: true,
+		opacity: 0.5,
+		depthWrite: false,
+	});
+	const ring = new THREE.Mesh(geometry, material);
+	ring.rotation.x = Math.PI / 2;
+	ring.position.copy(saturnBody.mesh.position);
+	saturnBody.orbitGroup.add(ring);
+}
+
+function addAsteroidBelt(parentGroup) {
+	const beltCount = 400;
+	const inner = 155, outer = 175;
+	const geometry = new THREE.SphereGeometry(0.7, 6, 6);
+	const material = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.8 });
+	for (let i = 0; i < beltCount; i++) {
+		const theta = Math.random() * Math.PI * 2;
+		const r = inner + Math.random() * (outer - inner);
+		const y = (Math.random() - 0.5) * 4;
+		const mesh = new THREE.Mesh(geometry, material);
+		mesh.position.set(r * Math.cos(theta), y, r * Math.sin(theta));
+		parentGroup.add(mesh);
+	}
 }
