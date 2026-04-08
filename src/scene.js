@@ -1,7 +1,20 @@
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { createSolarSystem } from "./bodies.js";
 
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { createSolarSystem } from './bodies.js';
+// Add a textured background universe (Milky Way)
+function addBackgroundUniverse(scene) {
+  const geometry = new THREE.SphereGeometry(2000, 64, 64);
+  const loader = new THREE.TextureLoader();
+  const texture = loader.load("/textures/stars_milky_way.jpg");
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    side: THREE.BackSide,
+    depthWrite: false,
+  });
+  const universe = new THREE.Mesh(geometry, material);
+  scene.add(universe);
+}
 let renderer, scene, camera, controls, bodies;
 
 export function setupScene() {
@@ -20,7 +33,7 @@ export function setupScene() {
     60,
     window.innerWidth / window.innerHeight,
     0.1,
-    10000
+    10000,
   );
   camera.position.set(0, 200, 600);
 
@@ -32,41 +45,23 @@ export function setupScene() {
   controls.maxDistance = 3000;
 
   // Lighting
-  const ambient = new THREE.AmbientLight(0x222244, 0.7);
+  const ambient = new THREE.AmbientLight(0xffffff, 0.4);
   scene.add(ambient);
-  const sunLight = new THREE.PointLight(0xfff6e0, 2, 0, 2);
+  const sunLight = new THREE.PointLight(0xffffff, 3, 0, 1.5);
   sunLight.position.set(0, 0, 0);
   scene.add(sunLight);
 
-  // Starfield
-  addStarfield();
+  // Background Universe (Milky Way)
+  addBackgroundUniverse(scene);
 
   // Solar System Bodies
   bodies = createSolarSystem(scene);
 
-  window.addEventListener('resize', onWindowResize);
+  window.addEventListener("resize", onWindowResize);
   animate();
 }
 
-function addStarfield() {
-  const starCount = 10000;
-  const geometry = new THREE.BufferGeometry();
-  const positions = [];
-  for (let i = 0; i < starCount; i++) {
-    const r = 3000 + Math.random() * 2000;
-    const theta = Math.random() * 2 * Math.PI;
-    const phi = Math.acos(2 * Math.random() - 1);
-    positions.push(
-      r * Math.sin(phi) * Math.cos(theta),
-      r * Math.sin(phi) * Math.sin(theta),
-      r * Math.cos(phi)
-    );
-  }
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  const material = new THREE.PointsMaterial({ color: 0x00e5ff, size: 1, sizeAttenuation: true });
-  const stars = new THREE.Points(geometry, material);
-  scene.add(stars);
-}
+// Removed addStarfield; only the texture background is used now.
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -81,7 +76,7 @@ function animate() {
   const dt = (now - lastTime) * 0.001; // seconds
   lastTime = now;
   if (bodies) {
-    Object.values(bodies).forEach(body => {
+    Object.values(bodies).forEach((body) => {
       if (body.update) body.update(dt);
     });
   }
