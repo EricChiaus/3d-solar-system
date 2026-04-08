@@ -78,17 +78,33 @@ export function createSolarSystem(scene) {
 	scene.add(bodies.sun.orbitGroup);
 
 	// Planets
-	const planetDefs = [
-		{ name: 'Mercury', radius: 3, color: 0xaaaaaa, orbitRadius: 60, orbitSpeed: 0.04 },
-		{ name: 'Venus', radius: 6, color: 0xffe5b4, orbitRadius: 80, orbitSpeed: 0.03 },
-		{ name: 'Earth', radius: 7, color: 0x3399ff, orbitRadius: 110, orbitSpeed: 0.025 },
-		{ name: 'Mars', radius: 5, color: 0xff5533, orbitRadius: 140, orbitSpeed: 0.02 },
-		{ name: 'Jupiter', radius: 15, color: 0xffe0b0, orbitRadius: 180, orbitSpeed: 0.008 },
-		{ name: 'Saturn', radius: 13, color: 0xffd27f, orbitRadius: 220, orbitSpeed: 0.006 },
-		{ name: 'Uranus', radius: 10, color: 0x66ffff, orbitRadius: 260, orbitSpeed: 0.004 },
-		{ name: 'Neptune', radius: 10, color: 0x3366ff, orbitRadius: 300, orbitSpeed: 0.003 },
-		{ name: 'Pluto', radius: 2, color: 0xcccccc, orbitRadius: 340, orbitSpeed: 0.002 },
+	// Orbital distances in AU
+	const planetData = [
+		{ name: 'Mercury', radius: 3, color: 0xaaaaaa, au: 0.39, orbitSpeed: 0.04 },
+		{ name: 'Venus', radius: 6, color: 0xffe5b4, au: 0.72, orbitSpeed: 0.03 },
+		{ name: 'Earth', radius: 7, color: 0x3399ff, au: 1.00, orbitSpeed: 0.025 },
+		{ name: 'Mars', radius: 5, color: 0xff5533, au: 1.52, orbitSpeed: 0.02 },
+		{ name: 'Jupiter', radius: 15, color: 0xffe0b0, au: 5.20, orbitSpeed: 0.008 },
+		{ name: 'Saturn', radius: 13, color: 0xffd27f, au: 9.58, orbitSpeed: 0.006 },
+		{ name: 'Uranus', radius: 10, color: 0x66ffff, au: 19.18, orbitSpeed: 0.004 },
+		{ name: 'Neptune', radius: 10, color: 0x3366ff, au: 30.07, orbitSpeed: 0.003 },
+		{ name: 'Pluto', radius: 2, color: 0xcccccc, au: 39.48, orbitSpeed: 0.002 },
 	];
+
+	// Log-scaled mapping with offset for inner planets (Neptune at 350 units, Mercury at 40)
+	function mapAUtoScene(au) {
+		const min = 60; // minimum orbit radius (greater than Sun's radius)
+		const max = 350;
+		const logMin = Math.log10(0.39);
+		const logMax = Math.log10(30.07);
+		const logAU = Math.log10(au);
+		return Math.round(min + (max - min) * (logAU - logMin) / (logMax - logMin));
+	}
+
+	const planetDefs = planetData.map(def => ({
+		...def,
+		orbitRadius: mapAUtoScene(def.au),
+	}));
 	planetDefs.forEach(def => {
 		bodies[def.name.toLowerCase()] = new CelestialBody({ ...def });
 		bodies.sun.orbitGroup.add(bodies[def.name.toLowerCase()].orbitGroup);
@@ -127,8 +143,8 @@ function addSaturnRings(saturnBody) {
 	});
 	const ring = new THREE.Mesh(geometry, material);
 	ring.rotation.x = Math.PI / 2;
-	ring.position.copy(saturnBody.mesh.position);
-	saturnBody.orbitGroup.add(ring);
+	// Attach the ring to Saturn's mesh so it always follows the planet
+	saturnBody.mesh.add(ring);
 }
 
 function addAsteroidBelt(parentGroup) {
