@@ -1,7 +1,8 @@
+
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-
-let renderer, scene, camera, controls;
+import { createSolarSystem } from './bodies.js';
+let renderer, scene, camera, controls, bodies;
 
 export function setupScene() {
   // Renderer
@@ -40,6 +41,9 @@ export function setupScene() {
   // Starfield
   addStarfield();
 
+  // Solar System Bodies
+  bodies = createSolarSystem(scene);
+
   window.addEventListener('resize', onWindowResize);
   animate();
 }
@@ -70,8 +74,17 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+let lastTime = performance.now();
 function animate() {
   requestAnimationFrame(animate);
+  const now = performance.now();
+  const dt = (now - lastTime) * 0.001; // seconds
+  lastTime = now;
+  if (bodies) {
+    Object.values(bodies).forEach(body => {
+      if (body.update) body.update(dt);
+    });
+  }
   controls.update();
   renderer.render(scene, camera);
 }
