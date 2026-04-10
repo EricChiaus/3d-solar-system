@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createSolarSystem } from "./bodies.js";
+import { setupInteraction, updateInteraction } from "./interaction.js";
 
 // Add a textured background universe (Milky Way)
 function addBackgroundUniverse(scene) {
@@ -57,6 +58,9 @@ export function setupScene() {
   // Solar System Bodies
   bodies = createSolarSystem(scene);
 
+  // Interaction (raycaster, selection ring, info panel)
+  setupInteraction(scene, camera, renderer, bodies);
+
   window.addEventListener("resize", onWindowResize);
   animate();
 }
@@ -80,6 +84,7 @@ function animate() {
       if (body.update) body.update(dt);
     });
   }
+  updateInteraction();
   controls.update();
   renderer.render(scene, camera);
 }
