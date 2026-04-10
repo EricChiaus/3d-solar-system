@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createSolarSystem } from "./bodies.js";
 import { setupInteraction, updateInteraction } from "./interaction.js";
+import { initCameraFly, tickFlyTo, isFlyActive } from "./cameraFly.js";
 
 // Add a textured background universe (Milky Way)
 function addBackgroundUniverse(scene) {
@@ -56,10 +57,14 @@ export function setupScene() {
   addBackgroundUniverse(scene);
 
   // Solar System Bodies
-  bodies = createSolarSystem(scene);
+  const { bodies: systemBodies, saturnRingMesh, asteroidMeshes } = createSolarSystem(scene);
+  bodies = systemBodies;
+
+  // Camera fly-in
+  initCameraFly(camera, controls);
 
   // Interaction (raycaster, selection ring, info panel)
-  setupInteraction(scene, camera, renderer, bodies);
+  setupInteraction(scene, camera, renderer, bodies, asteroidMeshes, saturnRingMesh);
 
   window.addEventListener("resize", onWindowResize);
   animate();
@@ -84,7 +89,9 @@ function animate() {
       if (body.update) body.update(dt);
     });
   }
+  tickFlyTo(dt);
   updateInteraction();
-  controls.update();
+  // Let OrbitControls handle damping/input only when not mid-fly
+  if (!isFlyActive()) controls.update();
   renderer.render(scene, camera);
 }

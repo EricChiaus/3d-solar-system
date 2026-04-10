@@ -8,6 +8,7 @@ import {
   onPanelClose,
   PANEL_W,
 } from "./ui/infoPanel.js";
+import { startFlyTo } from "./cameraFly.js";
 
 const RING_COLOR = 0x00e5ff;
 const PANEL_APPROX_H = 370;
@@ -18,21 +19,42 @@ let raycaster, mouse;
 let selectedBody = null;
 let selectionGroup = null;
 let meshToBody = new Map();
+let _extraMeshes = [];
 
 // SVG connector elements
 let svgOverlay, svgLine, svgDot, svgDiamond;
 
 // ─── Public API ────────────────────────────────────────────
 
-export function setupInteraction(scene, camera, renderer, bodies) {
-  _scene = scene;
-  _camera = camera;
+export function setupInteraction(scene, camera, renderer, bodies, asteroidMeshes = [], saturnRingMesh = null) {
+  _scene    = scene;
+  _camera   = camera;
   _renderer = renderer;
-  _bodies = bodies;
+  _bodies   = bodies;
 
-  // Map every body mesh → body instance
+  // Map every standard body mesh → body instance
   for (const body of Object.values(bodies)) {
     meshToBody.set(body.mesh, body);
+  }
+
+  // Virtual body: Asteroid Belt — each small rock mesh maps to a shared descriptor.
+  // The descriptor's `mesh` field is the clicked rock itself so the ring tracks it.
+  if (asteroidMeshes.length) {
+    asteroidMeshes.forEach((m) => {
+      meshToBody.set(m, { name: "Asteroid Belt", radius: 0.7, mesh: m });
+    });
+    _extraMeshes.push(...asteroidMeshes);
+  }
+
+  // Virtual body: Saturn's Rings — clicking the ring shows info and flies to Saturn.
+  if (saturnRingMesh && bodies.saturn) {
+    const saturnBody = bodies.saturn;
+    meshToBody.set(saturnRingMesh, {
+      name: "Saturn's Rings",
+      radius: saturnBody.radius * 2.5, // ring spans ~2.2× Saturn's radius
+      mesh:   saturnBody.mesh,         // selection ring + world pos follows Saturn
+    });
+    _extraMeshes.push(saturnRingMesh);
   }
 
   raycaster = new THREE.Raycaster();
@@ -229,12 +251,21 @@ function handleClick(event) {
   );
 
   raycaster.setFromCamera(mouse, _camera);
-  const meshes = Object.values(_bodies).map((b) => b.mesh);
-  const intersects = raycaster.intersectObjects(meshes);
+  const allMeshes = [
+    ...Object.values(_bodies).map((b) => b.mesh),
+    ..._extraMeshes,
+  ];
+  const intersects = raycaster.intersectObjects(allMeshes);
 
   if (intersects.length > 0) {
     const body = meshToBody.get(intersects[0].object);
+    // For Asteroid Belt the descriptor holds a reference to the clicked mesh,
+    // but we want the ring to follow that specific rock, so update .mesh in place.
+    if (body && body.name === "Asteroid Belt") {
+      body.mesh = intersects[0].object;
+    }
     if (body) selectBody(body, event.clientX, event.clientY);
+    else deselect();
   } else {
     deselect();
   }
@@ -247,6 +278,12 @@ function selectBody(body, clickX, clickY) {
 
   showPanel(body.name);
   positionPanel(clickX, clickY);
+
+  // Camera fly-in toward the body
+  const worldPos = new THREE.Vector3();
+  body.mesh.getWorldPosition(worldPos);
+  const viewDist = Math.max(body.radius * 4, 80);
+  startFlyTo(worldPos, viewDist);
 }
 
 function positionPanel(nearX, nearY) {

@@ -236,12 +236,12 @@ export function createSolarSystem(scene) {
   bodies.earth.mesh.add(bodies.moon.orbitGroup);
 
   // Saturn's Rings
-  addSaturnRings(bodies.saturn);
+  const saturnRingMesh = addSaturnRings(bodies.saturn);
 
   // Asteroid Belt
-  addAsteroidBelt(bodies.sun.orbitGroup);
+  const asteroidMeshes = addAsteroidBelt(bodies.sun.orbitGroup);
 
-  return bodies;
+  return { bodies, saturnRingMesh, asteroidMeshes };
 }
 
 function addSaturnRings(saturnBody) {
@@ -276,6 +276,7 @@ function addSaturnRings(saturnBody) {
   const ring = new THREE.Mesh(geometry, material);
   ring.rotation.x = Math.PI / 2;
   saturnBody.mesh.add(ring);
+  return ring;
 }
 
 function addAsteroidBelt(parentGroup) {
@@ -287,6 +288,7 @@ function addAsteroidBelt(parentGroup) {
     color: 0x888888,
     roughness: 0.8,
   });
+  const meshes = [];
   for (let i = 0; i < beltCount; i++) {
     const theta = Math.random() * Math.PI * 2;
     const r = inner + Math.random() * (outer - inner);
@@ -294,5 +296,7 @@ function addAsteroidBelt(parentGroup) {
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(r * Math.cos(theta), y, r * Math.sin(theta));
     parentGroup.add(mesh);
+    meshes.push(mesh);
   }
+  return meshes;
 }

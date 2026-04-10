@@ -120,6 +120,28 @@ const solarSystemData = {
     description:
       "Earth's only natural satellite, tidally locked so we always see the same face. The Moon stabilizes Earth's axial tilt and drives ocean tides through gravitational interaction.",
   },
+  "Asteroid Belt": {
+    type: "Asteroid Belt",
+    diameter: "Ceres: 939 km (largest)",
+    mass: "~4% of Moon's mass (total)",
+    distanceFromSun: "2.2 – 3.2 AU",
+    orbitalPeriod: "3 – 6 Earth years",
+    moons: "—",
+    surfaceTemp: "−73°C (avg)",
+    description:
+      "A vast ring of rocky remnants between Mars and Jupiter that never coalesced into a planet due to Jupiter's gravity. It contains over a million objects larger than 1 km, yet its total mass is less than 4% of our Moon.",
+  },
+  "Saturn's Rings": {
+    type: "Ring System",
+    diameter: "~270,000 km (outer edge)",
+    mass: "~1.54 × 10¹⁹ kg",
+    distanceFromSun: "9.58 AU",
+    orbitalPeriod: "—",
+    moons: "—",
+    surfaceTemp: "−180°C",
+    description:
+      "Saturn's iconic ring system spans 270,000 km yet is strikingly thin — often less than 1 km thick. Composed mostly of water-ice particles and rocky debris, the rings are estimated to be only 10–100 million years old, a cosmic blink of an eye.",
+  },
 };
 
 export default solarSystemData;
