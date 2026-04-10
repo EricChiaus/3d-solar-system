@@ -26,11 +26,18 @@ let svgOverlay, svgLine, svgDot, svgDiamond;
 
 // ─── Public API ────────────────────────────────────────────
 
-export function setupInteraction(scene, camera, renderer, bodies, asteroidMeshes = [], saturnRingMesh = null) {
-  _scene    = scene;
-  _camera   = camera;
+export function setupInteraction(
+  scene,
+  camera,
+  renderer,
+  bodies,
+  asteroidMeshes = [],
+  saturnRingMesh = null,
+) {
+  _scene = scene;
+  _camera = camera;
   _renderer = renderer;
-  _bodies   = bodies;
+  _bodies = bodies;
 
   // Map every standard body mesh → body instance
   for (const body of Object.values(bodies)) {
@@ -52,7 +59,7 @@ export function setupInteraction(scene, camera, renderer, bodies, asteroidMeshes
     meshToBody.set(saturnRingMesh, {
       name: "Saturn's Rings",
       radius: saturnBody.radius * 2.5, // ring spans ~2.2× Saturn's radius
-      mesh:   saturnBody.mesh,         // selection ring + world pos follows Saturn
+      mesh: saturnBody.mesh, // selection ring + world pos follows Saturn
     });
     _extraMeshes.push(saturnRingMesh);
   }

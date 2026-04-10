@@ -57,14 +57,25 @@ export function setupScene() {
   addBackgroundUniverse(scene);
 
   // Solar System Bodies
-  const { bodies: systemBodies, saturnRingMesh, asteroidMeshes } = createSolarSystem(scene);
+  const {
+    bodies: systemBodies,
+    saturnRingMesh,
+    asteroidMeshes,
+  } = createSolarSystem(scene);
   bodies = systemBodies;
 
   // Camera fly-in
   initCameraFly(camera, controls);
 
   // Interaction (raycaster, selection ring, info panel)
-  setupInteraction(scene, camera, renderer, bodies, asteroidMeshes, saturnRingMesh);
+  setupInteraction(
+    scene,
+    camera,
+    renderer,
+    bodies,
+    asteroidMeshes,
+    saturnRingMesh,
+  );
 
   window.addEventListener("resize", onWindowResize);
   animate();

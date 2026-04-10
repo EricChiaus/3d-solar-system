@@ -11,7 +11,6 @@ const planetTextures = {
   Saturn: "/textures/saturn.jpg",
   Uranus: "/textures/uranus.jpg",
   Neptune: "/textures/neptune.jpg",
-  Pluto: "/textures/pluto.jpg",
   Moon: "/textures/moon.jpg",
   Sun: "/textures/sun.jpg",
   SaturnRing: "/textures/saturn_ring_alpha.png",
@@ -192,14 +191,6 @@ export function createSolarSystem(scene) {
       au: 30.07,
       orbitSpeed: 0.003,
       textureUrl: planetTextures.Neptune,
-    },
-    {
-      name: "Pluto",
-      radius: 2,
-      color: 0xcccccc,
-      au: 39.48,
-      orbitSpeed: 0.002,
-      textureUrl: planetTextures.Pluto,
     },
   ];
 
