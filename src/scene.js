@@ -8,7 +8,7 @@ import { initCameraFly, tickFlyTo, isFlyActive } from "./cameraFly.js";
 function addBackgroundUniverse(scene) {
   const geometry = new THREE.SphereGeometry(2000, 64, 64);
   const loader = new THREE.TextureLoader();
-  const texture = loader.load("/textures/stars_milky_way.jpg");
+  const texture = loader.load(`${import.meta.env.BASE_URL}textures/stars_milky_way.jpg`);
   const material = new THREE.MeshBasicMaterial({
     map: texture,
     side: THREE.BackSide,

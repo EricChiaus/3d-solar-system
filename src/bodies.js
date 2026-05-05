@@ -2,19 +2,20 @@ import * as THREE from "three";
 import solarSystemData from "./data/solarSystemData.js";
 
 // Local textures for planets, moon, sun, and Saturn's ring
+const base = import.meta.env.BASE_URL;
 const planetTextures = {
-  Mercury: "/textures/mercury.jpg",
-  Venus: "/textures/venus.jpg",
-  Earth: "/textures/earth.jpg",
-  Mars: "/textures/mars.jpg",
-  Jupiter: "/textures/jupiter.jpg",
-  Saturn: "/textures/saturn.jpg",
-  Uranus: "/textures/uranus.jpg",
-  Neptune: "/textures/neptune.jpg",
-  Moon: "/textures/moon.jpg",
-  Sun: "/textures/sun.jpg",
-  SaturnRing: "/textures/saturn_ring_alpha.png",
-  Starfield: "/textures/stars_milky_way.jpg",
+  Mercury: `${base}textures/mercury.jpg`,
+  Venus: `${base}textures/venus.jpg`,
+  Earth: `${base}textures/earth.jpg`,
+  Mars: `${base}textures/mars.jpg`,
+  Jupiter: `${base}textures/jupiter.jpg`,
+  Saturn: `${base}textures/saturn.jpg`,
+  Uranus: `${base}textures/uranus.jpg`,
+  Neptune: `${base}textures/neptune.jpg`,
+  Moon: `${base}textures/moon.jpg`,
+  Sun: `${base}textures/sun.jpg`,
+  SaturnRing: `${base}textures/saturn_ring_alpha.png`,
+  Starfield: `${base}textures/stars_milky_way.jpg`,
 };
 export class CelestialBody {
   constructor({
